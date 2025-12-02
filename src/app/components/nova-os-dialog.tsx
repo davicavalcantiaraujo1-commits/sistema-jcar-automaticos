@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -20,6 +21,13 @@ interface NovaOSDialogProps {
   osId?: string // Para edição
 }
 
+// Lista fixa de mecânicos
+const MECANICOS_FIXOS = [
+  'Wellington',
+  'João Carlos',
+  'Germano'
+]
+
 export default function NovaOSDialog({ open, onOpenChange, onSuccess, osId }: NovaOSDialogProps) {
   const [loading, setLoading] = useState(false)
   const [searchLoading, setSearchLoading] = useState(false)
@@ -32,8 +40,12 @@ export default function NovaOSDialog({ open, onOpenChange, onSuccess, osId }: No
   const [formData, setFormData] = useState({
     cliente_id: '',
     veiculo_id: '',
+    mecanico_responsavel: '',
     servico_solicitado: '',
+    descricao: '',
     data_prevista: '',
+    orcamento_estimado: '',
+    pecas_gastas: '',
     status: 'A Receber'
   })
 
@@ -82,8 +94,12 @@ export default function NovaOSDialog({ open, onOpenChange, onSuccess, osId }: No
     setFormData({
       cliente_id: '',
       veiculo_id: '',
+      mecanico_responsavel: '',
       servico_solicitado: '',
+      descricao: '',
       data_prevista: '',
+      orcamento_estimado: '',
+      pecas_gastas: '',
       status: 'A Receber'
     })
     setNovoCliente({
@@ -127,8 +143,12 @@ export default function NovaOSDialog({ open, onOpenChange, onSuccess, osId }: No
         setFormData({
           cliente_id: data.cliente_id,
           veiculo_id: data.veiculo_id || '',
+          mecanico_responsavel: data.mecanico_responsavel || '',
           servico_solicitado: data.servico_solicitado || '',
+          descricao: data.descricao || '',
           data_prevista: data.data_prevista || '',
+          orcamento_estimado: data.orcamento_estimado?.toString() || '',
+          pecas_gastas: data.pecas_gastas || '',
           status: data.status || 'A Receber'
         })
         setClienteSelecionado(data.clientes)
@@ -333,8 +353,12 @@ export default function NovaOSDialog({ open, onOpenChange, onSuccess, osId }: No
       const osData = {
         cliente_id: formData.cliente_id,
         veiculo_id: formData.veiculo_id,
+        mecanico_responsavel: formData.mecanico_responsavel || null,
         servico_solicitado: formData.servico_solicitado,
+        descricao: formData.descricao || null,
         data_prevista: formData.data_prevista || null,
+        orcamento_estimado: formData.orcamento_estimado ? parseFloat(formData.orcamento_estimado) : null,
+        pecas_gastas: formData.pecas_gastas || null,
         status: formData.status,
         data_entrada: osId ? undefined : new Date().toISOString() // Apenas para nova OS
       }
@@ -574,6 +598,65 @@ export default function NovaOSDialog({ open, onOpenChange, onSuccess, osId }: No
                       </div>
                     ))}
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="descricao">Descrição Detalhada</Label>
+                  <Textarea
+                    id="descricao"
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Descreva detalhes adicionais do serviço..."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="orcamento_estimado">Orçamento Estimado (R$)</Label>
+                    <Input
+                      id="orcamento_estimado"
+                      type="number"
+                      step="0.01"
+                      value={formData.orcamento_estimado}
+                      onChange={(e) => setFormData({ ...formData, orcamento_estimado: e.target.value })}
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="pecas_gastas">Peças Gastas</Label>
+                    <Input
+                      id="pecas_gastas"
+                      value={formData.pecas_gastas}
+                      onChange={(e) => setFormData({ ...formData, pecas_gastas: e.target.value })}
+                      placeholder="Ex: Filtro de óleo, Pastilhas de freio..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SEÇÃO: MECÂNICO RESPONSÁVEL */}
+              <div className="space-y-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <h3 className="text-lg font-semibold text-purple-900">Mecânico Responsável</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="mecanico">Mecânico</Label>
+                  <Select
+                    value={formData.mecanico_responsavel}
+                    onValueChange={(value) => setFormData({ ...formData, mecanico_responsavel: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o mecânico" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MECANICOS_FIXOS.map((mecanico) => (
+                        <SelectItem key={mecanico} value={mecanico}>
+                          {mecanico}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
